@@ -4,5 +4,10 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.editorAssociations": {
+			"*.ipynb": "jupyter-notebook",
+			"file:/**/*.csv": "jupyter-data-wrangler"
+		}
+	}
 }
