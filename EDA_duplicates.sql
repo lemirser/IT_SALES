@@ -1,8 +1,8 @@
 -- Version 1.0, Last Modified: 2025-02-03
--- This script is for exploritory data analysis to check for duplicates.
+-- This script is for exploratory data analysis to check for duplicates.
 
 /*
- * Exploritory data analysis
+ * Exploratory data analysis
  * 1. Remove duplicates
  * 2. Standardize data
  * 3. NULL values
