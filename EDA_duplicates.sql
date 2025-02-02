@@ -1,5 +1,5 @@
 -- Version 1.0, Last Modified: 2025-02-03
--- This script is for expliritory data analysis to check for duplicates.
+-- This script is for exploritory data analysis to check for duplicates.
 
 /*
  * Exploritory data analysis
