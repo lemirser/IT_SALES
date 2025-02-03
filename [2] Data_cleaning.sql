@@ -6,8 +6,8 @@
  * Objectives:
  * [X -- line 17] 1. Correct the unit price in order_details, set the correct unit price based from product_id from the products table.
  * [X -- line 90] 2. Update the subtotal in order_details, multiply unit_price and quantity.
- * [X -- line 130] 3. update the total_price in orders table base on the subtotal.
- * 3a. Change the total_price into unit_price in orders table.
+ * [X -- line 129] 3. update the total_price in orders table base on the subtotal.
+ * [X -- line 219] 3a. Change the total_price into unit_price in orders table.
  * 4. add new column in products, unit_cost (unit_price/(1+25%).
  * 5. Update the price column in products to unit_price.
  * 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
@@ -133,7 +133,7 @@ FROM
 SELECT
     o.order_id,
     od.order_id,
-    o.total_price o_unit_price,
+    o.unit_price o_unit_price,
     od.quantity od_quantity,
     od.unit_price od_unit_price,
     od.subtotal od_subtotal
@@ -166,8 +166,7 @@ SET
 SELECT
     o.order_id,
     od.order_id,
-    o.total_price o_total_price,
-    -- The correct value should be
+    o.unit_price o_total_price,
     SUM(od.subtotal) OVER(PARTITION BY od.order_id) correct_total,
     od.quantity od_quantity,
     od.unit_price od_unit_price,
@@ -201,16 +200,22 @@ SET
 SELECT
     o.order_id,
     od.order_id,
-    o.total_price o_total_price,
+    o.unit_price o_total_price,
     SUM(od.subtotal) OVER(PARTITION BY od.order_id) correct_total,
     od.quantity od_quantity,
     od.unit_price od_unit_price,
     od.subtotal od_subtotal
 FROM
-    orders_temp o
+    orders o
 LEFT JOIN
     order_details od
 ON
     o.order_id = od.order_id
 ORDER BY
     o.order_id ASC;
+
+
+##### ##### #####
+-- 3a. Change the total_price into unit_price in orders table.
+ALTER TABLE it_sales.orders CHANGE total_price unit_price decimal(10,2);
+DESC it_sales.orders;
