@@ -1,4 +1,4 @@
--- Version 1.0, Last Modified: 2025-02-04
+-- Version 1.2, Last Modified: 2025-02-04
 -- This script is for data cleaning.
 
 
@@ -6,9 +6,9 @@
  * Objectives:
  * [X -- line 17] 1. Correct the unit price in order_details, set the correct unit price based from product_id from the products table.
  * [X -- line 90] 2. Update the subtotal in order_details, multiply unit_price and quantity.
- * [X -- line 129] 3. update the total_price in orders table base on the subtotal.
+ * [X -- line 129] 3. Update the total_price in orders table base on the subtotal.
  * [X -- line 219] 3a. Change the total_price into unit_price in orders table.
- * 4. add new column in products, unit_cost (unit_price/(1+25%).
+ * 4. Add new column in products, unit_cost (unit_price/(1+25%).
  * 5. Update the price column in products to unit_price.
  * 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
  */
