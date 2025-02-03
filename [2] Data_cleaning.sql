@@ -13,7 +13,7 @@
 
 USE it_sales;
 ##### ##### #####
-# 1. Correct the unit price in order_details, set the correct unit price based from product_id from the products table.
+-- 1. Correct the unit price in order_details, set the correct unit price based from product_id from the products table.
 
 # Create temp table to test out the query for data cleaning
 CREATE TEMPORARY TABLE order_details_temp AS
@@ -83,3 +83,42 @@ LEFT JOIN
     products p
 ON
     od.product_id = p.product_id;
+
+
+##### ##### #####
+-- 2. Update the subtotal in order_details, multiply unit_price and quantity.
+
+-- Verify the issue
+SELECT
+    *
+    -- Incorrect vault FOR subtotal
+FROM
+    order_details od;
+
+-- Create temp table to test the DML logic
+CREATE TEMPORARY TABLE it_sales.order_details_temp AS
+SELECT
+    *
+FROM
+    it_sales.order_details od;
+
+-- Recompute for the new_subtotal
+SELECT
+    quantity,
+    unit_price,
+    subtotal AS org_subtotal,
+    quantity * unit_price AS new_subtotal
+FROM
+    it_sales.order_details_temp odt;
+
+-- Update the subtotal column with the correct value
+-- Since we have a backup of the original order_details table, we don't need to create it again. But in production, you need to backup the table before any update.
+UPDATE
+    it_sales.order_details
+SET
+    subtotal = (quantity * unit_price);
+
+SELECT
+    *
+FROM
+    it_sales.order_details od;
