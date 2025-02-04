@@ -1,4 +1,4 @@
--- Version 1.04, Last Modified: 2025-02-04
+-- Version 1.05, Last Modified: 2025-02-04
 -- This script is for data cleaning.
 
 
@@ -10,7 +10,7 @@
  * [X -- line 219] 3a. Change the total_price into unit_price in orders table.
  * [X -- line 224] 4. Add new column in products, unit_cost (unit_price/(1+25%).
  * [X -- line 247] 5. Update the price column in products to unit_price.
- * 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
+ * [X -- line 260] 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
  */
 
 USE it_sales;
@@ -244,7 +244,6 @@ SELECT
 FROM
     products;
 
-
 ##### ##### #####
 -- 5. Update the price column in products to unit_price.
 SELECT * FROM products;
@@ -256,3 +255,79 @@ ALTER TABLE it_sales.products CHANGE price unit_price decimal(10,2);
 DESC products;
 
 SELECT * FROM products;
+
+
+##### ##### #####
+-- 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
+-- Check for orders without order details
+-- 373 orders without order details
+SELECT
+    o.order_id o_order_id,
+    od.order_id od_order_id
+FROM
+    orders o
+LEFT JOIN order_details od
+ON o.order_id = od.order_id
+WHERE od.order_id IS NULL;
+
+-- Add the has_order_details in the orders table
+-- 1 = if the order has order details, 0 for none.
+ALTER TABLE it_sales.orders ADD COLUMN has_order_details tinyint(1) DEFAULT 0;
+
+-- Index the new column
+ALTER TABLE it_sales.orders ADD INDEX `has_order_details_idx` (`has_order_details`);
+
+DESC orders;
+
+-- Test the DML logic
+CREATE TEMPORARY TABLE orders_temp AS SELECT * FROM orders;
+
+SELECT * FROM orders_temp;
+
+-- Create the update query for the has_order_details
+UPDATE
+    orders_temp ot
+LEFT JOIN order_details od
+ON
+    ot.order_id = od.order_id
+SET
+    has_order_details = 1
+WHERE od.order_id IS NOT NULL;
+
+-- Data checker
+SELECT
+    o.order_id o_order_id,
+    od.order_id od_order_id,
+    o.has_order_details
+FROM
+    orders_temp o
+LEFT JOIN order_details od
+ON
+    o.order_id = od.order_id
+ORDER BY
+    3 ASC;
+
+-- Backup orders table
+CREATE TABLE it_sales.orders_bak_2025_02_04_v2 AS SELECT * FROM it_sales.orders;
+
+UPDATE
+    orders ot
+LEFT JOIN order_details od
+ON
+    ot.order_id = od.order_id
+SET
+    has_order_details = 1
+WHERE od.order_id IS NOT NULL;
+
+-- Data checker
+SELECT
+    o.order_id o_order_id,
+    od.order_id od_order_id,
+    o.has_order_details
+FROM
+    orders o
+LEFT JOIN order_details od
+ON
+    o.order_id = od.order_id
+ORDER BY
+    3 ASC;
