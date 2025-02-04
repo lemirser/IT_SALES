@@ -1,4 +1,4 @@
--- Version 1.01, Last Modified: 2025-02-05
+-- Version 1.02, Last Modified: 2025-02-05
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -6,7 +6,7 @@
  * Objectives:
  * [X -- line 11] 1. Data type validation
  * [X -- line 59] 2. Data overview
- * 3. Check for duplicates
+ * [X -- line 100] 3. Check for duplicates
  * 4. Standardize data
  * 5. Check for NULL values
  */
@@ -94,4 +94,91 @@ SELECT
     *
 FROM
     products
+LIMIT 10;
+
+
+##### ##### #####
+-- 3. Check for duplicates
+
+--
+/*
+ * The query will add row numbers as new column, if the there are any duplicate/s, the value will be >1.
+ * We limit the result since we only need to fetch values that are greater than 1.
+ * If there are specific rules for each tables, we can use it in the 'partition by'.
+ * For example, if there is a data validation in the customers table by only registering/using unique email address. We can don't have to include all the columns in the partition by since we only need to check for duplicate email address.
+ *
+ */
+SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY customer_id,
+    customer_name,
+    email,
+    phone_num,
+    city,
+    state,
+    country,
+    registration_date) AS dup_checker
+FROM
+    customer c
+ORDER BY
+    dup_checker DESC
+LIMIT 10;
+
+
+SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY order_id,
+product_id,
+quantity,
+unit_price,
+subtotal) AS dup_checker
+FROM
+    order_details
+ORDER BY
+    dup_checker DESC
+LIMIT 10;
+
+SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY order_id,
+customer_id,
+order_date,
+unit_price,
+payment_method,
+status,
+has_order_details) AS dup_checker
+FROM
+    orders
+ORDER BY
+    dup_checker DESC
+LIMIT 10;
+
+SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY order_id,
+customer_id,
+order_date,
+unit_price,
+payment_method,
+status,
+has_order_details) AS dup_checker
+FROM
+    orders
+ORDER BY
+    dup_checker DESC
+LIMIT 10;
+
+SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY product_id,
+product_name,
+category,
+brand,
+unit_price,
+unit_cost,
+stock_quantity) AS dup_checker
+FROM
+    products
+ORDER BY
+    dup_checker DESC
 LIMIT 10;
