@@ -1,4 +1,4 @@
--- Version 1.03, Last Modified: 2025-02-04
+-- Version 1.04, Last Modified: 2025-02-04
 -- This script is for data cleaning.
 
 
@@ -9,7 +9,7 @@
  * [X -- line 129] 3. Update the total_price in orders table base on the subtotal.
  * [X -- line 219] 3a. Change the total_price into unit_price in orders table.
  * [X -- line 224] 4. Add new column in products, unit_cost (unit_price/(1+25%).
- * 5. Update the price column in products to unit_price.
+ * [X -- line 247] 5. Update the price column in products to unit_price.
  * 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
  */
 
@@ -243,3 +243,16 @@ SELECT
     price /(1 +.25) comp_cost
 FROM
     products;
+
+
+##### ##### #####
+-- 5. Update the price column in products to unit_price.
+SELECT * FROM products;
+
+DESC products;
+
+ALTER TABLE it_sales.products CHANGE price unit_price decimal(10,2);
+
+DESC products;
+
+SELECT * FROM products;
