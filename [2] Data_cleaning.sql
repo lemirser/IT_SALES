@@ -1,4 +1,4 @@
--- Version 1.2, Last Modified: 2025-02-04
+-- Version 1.03, Last Modified: 2025-02-04
 -- This script is for data cleaning.
 
 
@@ -8,7 +8,7 @@
  * [X -- line 90] 2. Update the subtotal in order_details, multiply unit_price and quantity.
  * [X -- line 129] 3. Update the total_price in orders table base on the subtotal.
  * [X -- line 219] 3a. Change the total_price into unit_price in orders table.
- * 4. Add new column in products, unit_cost (unit_price/(1+25%).
+ * [X -- line 224] 4. Add new column in products, unit_cost (unit_price/(1+25%).
  * 5. Update the price column in products to unit_price.
  * 6. Add has_order_details column in orders table for orders with missing order_details record in order_details table
  */
@@ -219,3 +219,27 @@ ORDER BY
 -- 3a. Change the total_price into unit_price in orders table.
 ALTER TABLE it_sales.orders CHANGE total_price unit_price decimal(10,2);
 DESC it_sales.orders;
+
+
+##### ##### #####
+-- 4. Add new column in products, unit_cost (unit_price/(1+25%).
+ALTER TABLE it_sales.products ADD COLUMN unit_cost decimal(10,2) AFTER price;
+
+DESC products;
+
+CREATE TABLE it_sales.products_bak_2025_02_04 AS SELECT * FROM it_sales.products;
+
+
+-- (1+.25) IS FOR the 25% markup
+UPDATE
+    it_sales.products p
+SET
+    unit_cost = (unit_price /(1 +.25));
+
+SELECT
+    product_id,
+    price,
+    unit_cost,
+    price /(1 +.25) comp_cost
+FROM
+    products;
