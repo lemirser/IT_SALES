@@ -1,4 +1,4 @@
--- Version 1.02, Last Modified: 2025-02-05
+-- Version 1.04, Last Modified: 2025-02-05
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -100,13 +100,12 @@ LIMIT 10;
 ##### ##### #####
 -- 3. Check for duplicates
 
---
 /*
  * The query will add row numbers as new column, if the there are any duplicate/s, the value will be >1.
  * We limit the result since we only need to fetch values that are greater than 1.
  * If there are specific rules for each tables, we can use it in the 'partition by'.
- * For example, if there is a data validation in the customers table by only registering/using unique email address. We can don't have to include all the columns in the partition by since we only need to check for duplicate email address.
- *
+ * For example, if there is a data validation in the customers table by only registering/using unique email address.
+ * We can don't have to include all the columns in the partition by since we only need to check for duplicate email address.
  */
 SELECT
     *,
@@ -124,14 +123,13 @@ ORDER BY
     dup_checker DESC
 LIMIT 10;
 
-
 SELECT
     *,
     ROW_NUMBER() OVER(PARTITION BY order_id,
-product_id,
-quantity,
-unit_price,
-subtotal) AS dup_checker
+    product_id,
+    quantity,
+    unit_price,
+    subtotal) AS dup_checker
 FROM
     order_details
 ORDER BY
@@ -141,12 +139,12 @@ LIMIT 10;
 SELECT
     *,
     ROW_NUMBER() OVER(PARTITION BY order_id,
-customer_id,
-order_date,
-unit_price,
-payment_method,
-status,
-has_order_details) AS dup_checker
+    customer_id,
+    order_date,
+    unit_price,
+    payment_method,
+    status,
+    has_order_details) AS dup_checker
 FROM
     orders
 ORDER BY
@@ -156,12 +154,12 @@ LIMIT 10;
 SELECT
     *,
     ROW_NUMBER() OVER(PARTITION BY order_id,
-customer_id,
-order_date,
-unit_price,
-payment_method,
-status,
-has_order_details) AS dup_checker
+    customer_id,
+    order_date,
+    unit_price,
+    payment_method,
+    status,
+    has_order_details) AS dup_checker
 FROM
     orders
 ORDER BY
@@ -171,14 +169,46 @@ LIMIT 10;
 SELECT
     *,
     ROW_NUMBER() OVER(PARTITION BY product_id,
-product_name,
-category,
-brand,
-unit_price,
-unit_cost,
-stock_quantity) AS dup_checker
+    product_name,
+    category,
+    brand,
+    unit_price,
+    unit_cost,
+    stock_quantity) AS dup_checker
 FROM
     products
 ORDER BY
     dup_checker DESC
 LIMIT 10;
+
+
+##### ##### #####
+-- 4. Standardize data
+/*
+ * REGEXP pattern used for `REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';`
+ * ^        = Start of the string (ensures the match starts from the first character)
+ * [0-9]{4} = Matches exactly four digits (representing the year)
+ * -        = Matches a literal hyphen/dash as date separator
+ * [0-9]{2} = Matches exactly two digits (representing the month or day)
+ * -        = Matches a literal hyphen/dash as date separator
+ * [0-9]{2} = Matches exactly two digits (representing the month or day)
+ * $        = End of the string (ensures nothing follows the month or day)
+ */
+
+-- Checking any inconsistency with the date format. We can use the YYYY-MM-DD format for all the tables.
+SELECT
+    *
+FROM
+    customer
+WHERE
+    registration_date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+-- RETURNS ALL the DATA that doesn't MATCH WITH the REGEXP (YYYY-MM-DD).
+
+
+SELECT
+    *
+FROM
+    orders
+WHERE
+    order_date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+-- RETURNS ALL the DATA that doesn't MATCH WITH the REGEXP (YYYY-MM-DD).
