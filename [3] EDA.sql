@@ -1,4 +1,4 @@
--- Version 1.06, Last Modified: 2025-02-07
+-- Version 1.07, Last Modified: 2025-02-07
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -303,7 +303,7 @@ SELECT * FROM products p;
 -- Fetch unique brand names
 SELECT
     DISTINCT CASE
-        WHEN substring_index(p.product_name, ' ', 1) = 'Western' THEN "Western Digital"
+        WHEN product_name LIKE 'Western %' THEN "Western Digital"
         ELSE substring_index(p.product_name, ' ', 1)
     END product_brand
 FROM
@@ -318,8 +318,9 @@ FROM
 
 -- Find product_type
 SELECT
-     DISTINCT CASE
-        WHEN SUBSTRING_INDEX(product_name, ' ', 1) = 'Western' THEN 'Storage'
+    product_name,
+    CASE
+        WHEN product_name LIKE 'Western %' THEN 'Storage'
         ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(product_name, ' ', 2), ' ',-1)
     END product_type
 FROM
