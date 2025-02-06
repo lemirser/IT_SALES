@@ -1,4 +1,4 @@
--- Version 1.05, Last Modified: 2025-02-06
+-- Version 1.06, Last Modified: 2025-02-07
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -7,8 +7,8 @@
  * [X -- line 11] 1. Data type validation
  * [X -- line 59] 2. Data overview
  * [X -- line 100] 3. Check for duplicates
- * 4. Standardize data
- * 5. Check for NULL values
+ * [X -- line 184] 4. Standardize data
+ * [X -- line 299] 5. Separate product name (Brand, product_type, model number)
  */
 
 USE it_sales;
@@ -294,3 +294,34 @@ FROM
 WHERE
     customer_name REGEXP '^(Dr\\.|Mrs\\.|Ms\\.|Mr\\.)'
     OR customer_name REGEXP '\\s(MD|DDS|DVM)$';
+
+
+##### ##### #####
+-- 5. Separate product name (Brand, product_type, model number)
+SELECT * FROM products p;
+
+-- Fetch unique brand names
+SELECT
+    DISTINCT CASE
+        WHEN substring_index(p.product_name, ' ', 1) = 'Western' THEN "Western Digital"
+        ELSE substring_index(p.product_name, ' ', 1)
+    END product_brand
+FROM
+    products p;
+
+-- Find product_model
+SELECT
+    product_name,
+    SUBSTRING_INDEX(p.product_name,' ',-1) AS product_model
+FROM
+    products p;
+
+-- Find product_type
+SELECT
+     DISTINCT CASE
+        WHEN SUBSTRING_INDEX(product_name, ' ', 1) = 'Western' THEN 'Storage'
+        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(product_name, ' ', 2), ' ',-1)
+    END product_type
+FROM
+    products;
+
