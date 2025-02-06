@@ -1,4 +1,4 @@
--- Version 1.07, Last Modified: 2025-02-07
+-- Version 1.08, Last Modified: 2025-02-07
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -326,3 +326,31 @@ SELECT
 FROM
     products;
 
+-- Consolidated query
+SELECT
+    product_name,
+    CASE
+        WHEN product_name LIKE 'Western %' THEN "Western Digital"
+        ELSE substring_index(p.product_name, ' ', 1)
+    END product_brand,
+    CASE
+        WHEN product_name LIKE 'Western %' THEN 'Storage'
+        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(product_name, ' ', 2), ' ',-1)
+    END product_type,
+    SUBSTRING_INDEX(p.product_name,' ',-1) AS product_model
+FROM
+    products p;
+
+-- Backup table
+CREATE TABLE it_sales.products_bak_2025_02_07 AS SELECT * FROM products;
+
+-- Update table to add new columns
+ALTER TABLE it_sales.products ADD COLUMN `product_brand` varchar(255) AFTER `product_name`;
+ALTER TABLE it_sales.products ADD INDEX `product_brand_idx` (`product_brand`);
+
+ALTER TABLE it_sales.products ADD COLUMN `product_type` varchar(255) AFTER `product_brand`;
+ALTER TABLE it_sales.products ADD INDEX `product_type_idx` (`product_type`);
+
+ALTER TABLE it_sales.products ADD COLUMN `product_model` varchar(255) AFTER `product_type`;
+
+DESC products;
