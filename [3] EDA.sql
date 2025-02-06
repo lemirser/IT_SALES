@@ -1,4 +1,4 @@
--- Version 1.08, Last Modified: 2025-02-07
+-- Version 1.09, Last Modified: 2025-02-07
 -- This script is Exploratory Data Analysis (EDA).
 
 
@@ -354,3 +354,19 @@ ALTER TABLE it_sales.products ADD INDEX `product_type_idx` (`product_type`);
 ALTER TABLE it_sales.products ADD COLUMN `product_model` varchar(255) AFTER `product_type`;
 
 DESC products;
+
+-- Populate new columns
+UPDATE
+    products
+SET
+    product_brand = CASE
+        WHEN product_name LIKE 'Western %' THEN "Western Digital"
+        ELSE substring_index(product_name, ' ', 1)
+    END,
+    product_type = CASE
+        WHEN product_name LIKE 'Western %' THEN 'Storage'
+        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(product_name, ' ', 2), ' ',-1)
+    END,
+    product_model = SUBSTRING_INDEX(product_name,' ',-1);
+
+SELECT * FROM products;
