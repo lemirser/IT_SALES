@@ -1,4 +1,4 @@
--- Version 1.5, Last Modified: 2025-02-08
+-- Version 1.6, Last Modified: 2025-02-08
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -74,7 +74,7 @@ SELECT
     p.product_type,
     count(product_type) Product_sales,
     SUM(od.subtotal) Total_sales,
-    TRUNCATE(avg(od.subtotal),2) Average_sales
+    ROUND(avg(od.subtotal),2) Average_sales
 FROM
     orders o
 INNER JOIN order_details od
@@ -93,7 +93,7 @@ SELECT
     p.product_type,
     count(product_type) Product_sales,
     SUM(od.subtotal) Total_sales,
-    TRUNCATE(avg(od.subtotal),2) Average_sales
+    ROUND(avg(od.subtotal),2) Average_sales
 FROM
     orders o
 INNER JOIN order_details od
