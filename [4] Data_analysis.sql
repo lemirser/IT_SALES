@@ -1,4 +1,4 @@
--- Version 1.12, Last Modified: 2025-02-10
+-- Version 1.13, Last Modified: 2025-02-10
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -10,7 +10,7 @@
  * [X -- line 176] 3. Average Revenue Per User to help measure customer value and pricing effectiveness
  * [X -- line 254] 4. Products Sales to see which products have the hightest sales record.
  * [X -- line 291] 5. Gross profit margin
- * 6. Most Payment method used/ Customer with most orders
+ * [X -- line 341] 6. Most Payment method used/ Customer with most orders
  * 7. Delivered, Canceled, and pending orders comparison
  * 8. Customer retention rate
  */
@@ -336,3 +336,29 @@ GROUP BY
     2
 ORDER BY
     1 ASC;
+
+
+##### ##### #####
+-- 6. Most Payment method used
+SELECT
+    YEAR(order_date) `Year`,
+    payment_method,
+    COUNT(payment_method) payment_method_used
+FROM
+    orders
+GROUP BY
+    1,
+    2
+ORDER BY
+    1 ASC;
+
+SELECT
+    DATE_FORMAT(order_date, '%Y-%m') `YYYY-MM`,
+    payment_method,
+    COUNT(payment_method) payment_method_used
+FROM
+    orders
+GROUP BY
+    1,
+    2
+ORDER BY 1 ASC;
