@@ -1,4 +1,4 @@
--- Version 1.9, Last Modified: 2025-02-09
+-- Version 1.10, Last Modified: 2025-02-09
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -7,8 +7,8 @@
  * [X -- line 23] 1. Create Total Revenue KPI to display the revenue Yearly and/or Monthly basis.
  * [X -- line 56] 1a. Total Revenue per product
  * [X -- line 110] 2. Sales Growth Rate to check if the sales per Year or Month fluctuates
- * 3. Average Revenue Per User to help measure customer value and pricing effectiveness
- * 4. Products Sales to see which products have the hightest sales record.
+ * [X -- line 176] 3. Average Revenue Per User to help measure customer value and pricing effectiveness
+ * [X -- line 254] 4. Products Sales to see which products have the hightest sales record.
  * 5. Gross profit margin
  * 6. Net Profit margin
  * 7. Net profit vs net revenue vs net cost
@@ -249,3 +249,40 @@ SELECT
     ROUND(product_sales/product_sold, 2) AS avg_revenue_per_unit
 FROM
     avg_pu;
+
+
+##### ##### #####
+-- 4. Products Sales to see which products have the hightest sales record.
+use it_sales;
+
+SELECT
+    DATE_FORMAT(o.order_date, '%Y-%m') `YYYY-MM`,
+    p.product_type,
+    sum(od.subtotal) product_sales
+FROM
+    orders o
+LEFT JOIN order_details od ON
+    o.order_id = od.order_id
+LEFT JOIN products p ON
+    od.product_id = p.product_id
+WHERE
+    o.has_order_details = 1
+    AND o.status = 'Completed'
+GROUP BY 1,2
+ORDER BY 1 ASC;
+
+SELECT
+    DATE_FORMAT(o.order_date, '%Y') `Year`,
+    p.product_type,
+    sum(od.subtotal) product_sales
+FROM
+    orders o
+LEFT JOIN order_details od ON
+    o.order_id = od.order_id
+LEFT JOIN products p ON
+    od.product_id = p.product_id
+WHERE
+    o.has_order_details = 1
+    AND o.status = 'Completed'
+GROUP BY 1,2
+ORDER BY 1 ASC;
