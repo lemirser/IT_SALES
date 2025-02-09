@@ -1,4 +1,4 @@
--- Version 1.11, Last Modified: 2025-02-09
+-- Version 1.12, Last Modified: 2025-02-10
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -10,11 +10,9 @@
  * [X -- line 176] 3. Average Revenue Per User to help measure customer value and pricing effectiveness
  * [X -- line 254] 4. Products Sales to see which products have the hightest sales record.
  * [X -- line 291] 5. Gross profit margin
- * 6. Net Profit margin
- * 7. Net profit vs net revenue vs net cost
- * 8. Most Payment method used/ Customer with most orders
- * 9. Delivered, Canceled, and pending orders comparison
- * 10. Customer retention rate
+ * 6. Most Payment method used/ Customer with most orders
+ * 7. Delivered, Canceled, and pending orders comparison
+ * 8. Customer retention rate
  */
 
 
