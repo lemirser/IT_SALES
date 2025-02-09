@@ -1,4 +1,4 @@
--- Version 1.10, Last Modified: 2025-02-09
+-- Version 1.11, Last Modified: 2025-02-09
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -9,7 +9,7 @@
  * [X -- line 110] 2. Sales Growth Rate to check if the sales per Year or Month fluctuates
  * [X -- line 176] 3. Average Revenue Per User to help measure customer value and pricing effectiveness
  * [X -- line 254] 4. Products Sales to see which products have the hightest sales record.
- * 5. Gross profit margin
+ * [X -- line 291] 5. Gross profit margin
  * 6. Net Profit margin
  * 7. Net profit vs net revenue vs net cost
  * 8. Most Payment method used/ Customer with most orders
@@ -286,3 +286,55 @@ WHERE
     AND o.status = 'Completed'
 GROUP BY 1,2
 ORDER BY 1 ASC;
+
+
+##### ##### #####
+-- 5. Gross profit margin
+/*
+ * By generating the gross profit margin, we can understand the profitability of specific items rather.
+ * Calculating gross margin can show if the business is spending too much on a product.
+ */
+
+SELECT
+    YEAR(o.order_date) `Year`,
+    p.product_type,
+    sum(od.subtotal) product_sales,
+    sum(p.unit_cost) product_cost,
+    sum(od.quantity),
+    ROUND(((sum(od.subtotal)-sum(p.unit_cost))/sum(od.subtotal))*100,2) gross_profit_margin_percentage
+FROM
+    orders o
+LEFT JOIN order_details od ON
+    o.order_id = od.order_id
+LEFT JOIN products p ON
+    p.product_id = od.product_id
+WHERE
+    o.status = 'Completed'
+    AND o.has_order_details = 1
+GROUP BY
+    1,
+    2
+ORDER BY
+    1,2 ASC;
+
+SELECT
+    DATE_FORMAT(o.order_date,'%Y-%m') `YYYY-MM`,
+    p.product_type,
+    sum(od.subtotal) product_sales,
+    sum(p.unit_cost) product_cost,
+    sum(od.quantity),
+    ROUND(((sum(od.subtotal)-sum(p.unit_cost))/sum(od.subtotal))*100,2) gross_profit_margin_percentage
+FROM
+    orders o
+LEFT JOIN order_details od ON
+    o.order_id = od.order_id
+LEFT JOIN products p ON
+    p.product_id = od.product_id
+WHERE
+    o.status = 'Completed'
+    AND o.has_order_details = 1
+GROUP BY
+    1,
+    2
+ORDER BY
+    1 ASC;
