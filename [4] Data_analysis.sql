@@ -1,4 +1,4 @@
--- Version 1.13, Last Modified: 2025-02-10
+-- Version 1.14, Last Modified: 2025-02-10
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -11,7 +11,7 @@
  * [X -- line 254] 4. Products Sales to see which products have the hightest sales record.
  * [X -- line 291] 5. Gross profit margin
  * [X -- line 341] 6. Most Payment method used/ Customer with most orders
- * 7. Delivered, Canceled, and pending orders comparison
+ * [X -- line 367] 7. Delivered, Canceled, and pending orders comparison
  * 8. Customer retention rate
  */
 
@@ -362,3 +362,29 @@ GROUP BY
     1,
     2
 ORDER BY 1 ASC;
+
+
+##### ##### #####
+-- 7. Delivered, Canceled, and pending orders comparison
+
+/*
+ * By displaying the breakdown between Completed, Canceled, and Pending orders, we can investigate if there are more Canceled orders than Completed orders each month/ year. We can then check further what might be causing the issue.
+ */
+
+SELECT
+    YEAR(order_date) `Year`,
+    status,
+    COUNT(status) order_status
+FROM
+    orders
+GROUP BY 1,2
+ORDER BY 1, 2;
+
+SELECT
+    DATE_FORMAT(order_date,'%Y-%m') `YYYY-MM`,
+    status,
+    COUNT(status) order_status
+FROM
+    orders
+GROUP BY 1,2
+ORDER BY 1, 2;
