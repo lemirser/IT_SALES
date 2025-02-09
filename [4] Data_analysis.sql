@@ -1,4 +1,4 @@
--- Version 1.6, Last Modified: 2025-02-08
+-- Version 1.9, Last Modified: 2025-02-09
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -171,3 +171,81 @@ LEFT JOIN yearly_sales prev_orders
     prev_orders.order_year = YEAR(STR_TO_DATE(DATE_SUB(CONCAT(curr_orders.order_year, '-01-01'), INTERVAL 1 Year), '%Y-%m-%d'))
 ORDER BY
     curr_orders.order_year ASC;
+
+
+##### ##### #####
+-- 3. Average Revenue Per User to help measure customer value and pricing effectiveness
+/*
+ * With avpu, we can check which product yield a higher revenue sales per month/year.
+ * We can also decide to run a discount sale or marketing ad during the month with the highest avg sale per product
+ */
+SELECT * FROM orders;
+
+WITH avg_rpu_yearly AS (
+SELECT
+    YEAR(order_date) `Year`,
+    sum(unit_price) Total_revenue,
+    count(DISTINCT customer_id) Number_of_customers
+FROM
+    orders
+WHERE
+    has_order_details = 1
+    AND status = 'Completed'
+GROUP BY
+    1)
+SELECT
+    `Year`,
+    Total_revenue,
+    ROUND(Total_revenue/Number_of_customers ,2) ARPU
+FROM
+    avg_rpu_yearly;
+
+WITH avg_rpu_monthly AS (
+SELECT
+    DATE_FORMAT(order_date,'%Y-%m') `YYYY-MM`,
+    sum(unit_price) Total_revenue,
+    count(DISTINCT customer_id) Number_of_customers
+FROM
+    orders
+WHERE
+    has_order_details = 1
+    AND status = 'Completed'
+GROUP BY
+    1)
+SELECT
+    `YYYY-MM`,
+    Total_revenue,
+    ROUND(Total_revenue/Number_of_customers ,2) ARPU
+FROM
+    avg_rpu_monthly
+ORDER BY 1;
+
+WITH avg_pu AS (
+SELECT
+    DATE_FORMAT(o.order_date, '%Y-%m') `YYYY-MM`,
+    SUM(od.subtotal) AS product_sales,
+    -- p.product_brand,
+    p.product_type,
+    count(DISTINCT od.product_id) product_sold
+FROM
+    orders o
+INNER JOIN order_details od ON
+    o.order_id = od.order_id
+LEFT JOIN products p ON
+    p.product_id = od.product_id
+WHERE
+    o.status = 'Completed'
+    AND o.has_order_details = 1
+GROUP BY
+    DATE_FORMAT(o.order_date, '%Y-%m'),
+    -- p.product_brand,
+    p.product_type)
+SELECT
+    `YYYY-MM`,
+    -- product_brand,
+    product_type,
+    product_sold,
+    product_sales,
+    ROUND(product_sales/product_sold, 2) AS avg_revenue_per_unit
+FROM
+    avg_pu;
