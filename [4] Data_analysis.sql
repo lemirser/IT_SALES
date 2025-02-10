@@ -1,4 +1,4 @@
--- Version 1.14, Last Modified: 2025-02-10
+-- Version 1.15, Last Modified: 2025-02-10
 -- This script is for data transformation and enrichment. Transform data into meaningful formats
 
 
@@ -12,7 +12,7 @@
  * [X -- line 291] 5. Gross profit margin
  * [X -- line 341] 6. Most Payment method used/ Customer with most orders
  * [X -- line 367] 7. Delivered, Canceled, and pending orders comparison
- * 8. Customer retention rate
+ * [X -- line 393]  8. Customer retention rate
  */
 
 
@@ -388,3 +388,68 @@ FROM
     orders
 GROUP BY 1,2
 ORDER BY 1, 2;
+
+
+##### ##### #####
+-- 8. Customer retention rate
+
+
+WITH previous_year AS (
+-- Select customers who ordered previous year
+SELECT
+    DISTINCT customer_id,
+    YEAR(order_date) AS YEAR
+FROM
+    orders
+WHERE
+    has_order_details = 1
+    AND status = 'Completed'),
+current_year AS (
+-- Query for current year
+SELECT
+    DISTINCT customer_id,
+    YEAR(order_date) AS YEAR
+FROM
+    orders
+WHERE
+    has_order_details = 1
+    AND status = 'Completed'
+),
+retained_customers AS (
+-- Count customers who ordered in consecutive year
+SELECT
+    py.YEAR previous_year,
+    COALESCE(cy.YEAR,NULL) current_year,
+    count(DISTINCT py.customer_id) retained_customers
+FROM
+    previous_year py
+LEFT JOIN current_year cy
+ON
+    py.customer_id = cy.customer_id
+    AND cy.`year` = py.`year` + 1
+GROUP BY
+    1,
+    2),
+total_previous AS (
+-- Counts total unique customers in each previous year
+SELECT
+    `year` AS previous_year,
+    COUNT(DISTINCT customer_id) AS total_customers
+FROM
+    previous_year
+GROUP BY
+    `year`
+    )
+SELECT
+    r.previous_year,
+    r.current_year,
+    r.retained_customers,
+    t.total_customers AS previous_year_customers,
+    (r.retained_customers * 100.0 / t.total_customers) AS retention_rate
+FROM
+    retained_customers r
+JOIN total_previous t
+ON
+    r.previous_year = t.previous_year
+ORDER BY
+    r.previous_year;
