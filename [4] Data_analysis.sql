@@ -453,3 +453,60 @@ ON
     r.previous_year = t.previous_year
 ORDER BY
     r.previous_year;
+
+
+##### ##### #####
+WITH rfm AS (
+    SELECT
+        customer_id,
+        MAX(order_date) AS last_purchase, -- Recency
+        COUNT(order_id) AS frequency,    -- Frequency
+        SUM(unit_price) AS monetary     -- Monetary
+    FROM orders
+    WHERE status = 'Completed'
+    GROUP BY customer_id
+)
+SELECT
+    customer_id,
+    DATEDIFF(CURRENT_DATE(), last_purchase) AS recency, -- Count the days the customer LAST ordered
+    frequency,
+    monetary
+FROM rfm
+ORDER BY recency ASC, monetary DESC;
+
+/*
+ * Example of customer types with rfm scores:
+ *
+ * Whales: The biggest customers with high (5,5,5) values in all three factors that should be targeted with special promotions to keep them active.
+ * New Customers: Customers with high recency and low frequency (5,1,X) are new customers. A targeted follow-up may convert them into repeat customers.
+ * Lapsed customers: Customers with low recency but high value (1,X,5) were once valuable customers but have since stopped. Atargeted message may reactivate them.
+ *
+ * Source: https://www.techtarget.com/searchdatamanagement/definition/RFM-analysis#:~:text=Some%20examples%20of,may%20reactivate%20them.
+ */
+WITH rfm AS (
+    SELECT
+        customer_id,
+        status AS order_status,
+        MAX(order_date) AS last_purchase, -- Recency
+        COUNT(order_id) AS frequency,    -- Frequency
+        SUM(unit_price) AS monetary     -- Monetary
+    FROM orders
+    WHERE status IN ('Completed','Pending')
+    GROUP BY customer_id, status
+),rfm_scores AS (
+    SELECT
+        customer_id,
+        -- Divide the data into 5 groups, which in turn acts as a rating/counting system 1-5 for recency_score, frequency_score, and monetary_score
+        NTILE(5) OVER (ORDER BY DATEDIFF(CURRENT_DATE(), last_purchase) DESC) AS recency_score,
+        NTILE(5) OVER (ORDER BY frequency ASC) AS frequency_score,
+        NTILE(5) OVER (ORDER BY monetary ASC) AS monetary_score
+    FROM rfm
+)
+SELECT
+    customer_id,
+    recency_score,
+    frequency_score,
+    monetary_score,
+    (recency_score + frequency_score + monetary_score) AS rfm_total
+FROM rfm_scores
+ORDER BY rfm_total DESC;
